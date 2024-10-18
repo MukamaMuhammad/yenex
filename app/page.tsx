@@ -37,7 +37,7 @@ export default function ScraperPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 h-[90vh] flex flex-col pt-32 items-center">
+    <div className="container mx-auto px-4 py-8 h-[100vh] flex flex-col pt-24 items-center">
       <h1 className="text-2xl md:text-4xl font-medium mb-8 text-center">
         Product{" "}
         <span className="bg-primary text-white font-semibold px-2">Energy</span>{" "}

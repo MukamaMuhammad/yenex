@@ -13,13 +13,13 @@ export default function ProductInfo({ info }: ProductInfoProps) {
         <CardTitle>Product Information</CardTitle>
       </CardHeader>
       <CardContent>
-        <p>
+        <p className="mb-1">
           <strong>Name:</strong> {info.productName}
         </p>
-        <p>
-          <strong>Power Rating:</strong> {info.powerRating}
+        <p className="mb-1">
+          <strong>Power Rating:</strong> {info.powerRating} watts
         </p>
-        <p>
+        <p className="mb-1">
           <strong>URL:</strong>{" "}
           <a
             href={info.url}
@@ -27,7 +27,9 @@ export default function ProductInfo({ info }: ProductInfoProps) {
             rel="noopener noreferrer"
             className="text-blue-500 hover:underline"
           >
-            {info.url}
+            {info.url.length > 50
+              ? `${info.url.substring(0, 50)}...`
+              : info.url}
           </a>
         </p>
       </CardContent>
