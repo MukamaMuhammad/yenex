@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
       executablePath:
         process.env.CHROME_EXECUTABLE_PATH ||
         (await chromium.executablePath(
-          "https://<Bucket Name>.s3.amazonaws.com/chromium-v126.0.0-pack.tar"
+          "https://lolentistorage.blob.core.windows.net/chromium/chromium-v130.0.0-pack.tar"
         )),
       headless: chromium.headless,
     });
