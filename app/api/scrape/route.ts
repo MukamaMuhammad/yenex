@@ -5,6 +5,8 @@ import { ProductInfoSchema } from "@/components/scraper/schemas";
 import chromium from "@sparticuz/chromium-min";
 import puppeteer from "puppeteer-core";
 import { JSDOM } from "jsdom";
+import type { ConstructorOptions } from "jsdom";
+import * as cheerio from "cheerio";
 
 export const maxDuration = 60; // Allow up to 60 seconds for the API route
 
@@ -38,7 +40,8 @@ export async function POST(req: NextRequest) {
     });
 
     // Increase the navigation timeout to 60 seconds
-    await page.goto(url, { waitUntil: "networkidle0", timeout: 60000 });
+    // await page.goto(url, { waitUntil: "networkidle0", timeout: 60000 });
+    await page.goto(url, { timeout: 60000 });
 
     // Add a delay after navigation to allow for any dynamic content to load
     await page.evaluate(
@@ -48,8 +51,27 @@ export async function POST(req: NextRequest) {
     const content = await page.content();
     await browser.close();
     console.log("content length", content.length);
+
     // Use JSDOM for more advanced DOM manipulation
-    const dom = new JSDOM(content);
+    let dom;
+    try {
+      dom = new JSDOM(content);
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message.includes("Could not parse CSS stylesheet")
+      ) {
+        console.warn(
+          "CSS parsing error encountered, continuing without styles:",
+          error.message
+        );
+        dom = new JSDOM(content, {
+          features: { css: false },
+        } as ConstructorOptions);
+      } else {
+        throw error;
+      }
+    }
     const document = dom.window.document;
 
     // Remove unnecessary elements
@@ -151,9 +173,5 @@ export async function POST(req: NextRequest) {
         headers: { "Content-Type": "application/json" },
       }
     );
-  } finally {
-    // if (browser) {
-    //   await browser.close();
-    // }
   }
 }
