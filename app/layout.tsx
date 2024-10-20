@@ -10,9 +10,9 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "ReplyBuddy",
+  title: "Product Energy Calculator",
   description:
-    "The AI tool that mentions your product in online conversations naturally | Replybuddy",
+    "The AI tool that calculates the energy consumption of any product.",
 };
 
 export default function RootLayout({
