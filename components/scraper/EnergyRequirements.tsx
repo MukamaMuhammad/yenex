@@ -11,9 +11,9 @@ export default function EnergyRequirements({
   // This is a placeholder. You'll need to implement the actual calculations
   // or API call to get the energy requirements.
   return (
-    <Card className="md:w-[60%] w-full px-4">
+    <Card className=" w-full px-4">
       <CardHeader>
-        <CardTitle>Required Solar System</CardTitle>
+        <CardTitle className="text-xl">Required Solar System</CardTitle>
       </CardHeader>
       <CardContent>
         <p>Calculating energy requirements for {powerRating} watts...</p>
@@ -32,7 +32,7 @@ export function EnergyRequirementsSkeleton({
   if (!isLoading) return null;
 
   return (
-    <Card className="md:w-[60%] w-full px-4">
+    <Card className=" w-full px-4">
       <CardHeader>
         <CardTitle>
           <Skeleton className="h-6 w-1/2" />

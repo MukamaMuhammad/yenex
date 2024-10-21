@@ -6,10 +6,8 @@ import chromium from "@sparticuz/chromium-min";
 import puppeteer from "puppeteer-core";
 import { JSDOM } from "jsdom";
 import type { ConstructorOptions } from "jsdom";
-import * as cheerio from "cheerio";
 
-export const maxDuration = 60; // Allow up to 60 seconds for the API route
-
+export const maxDuration = 60;
 export async function POST(req: NextRequest) {
   const { url } = await req.json();
   const isLocal = !!process.env.CHROME_EXECUTABLE_PATH;
@@ -162,7 +160,6 @@ export async function POST(req: NextRequest) {
         }
       `,
     });
-
     return result.toTextStreamResponse();
   } catch (error) {
     console.error("Error scraping page:", error);

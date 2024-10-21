@@ -8,9 +8,9 @@ interface ProductInfoProps {
 
 export default function ProductInfo({ info }: ProductInfoProps) {
   return (
-    <Card className="mb-6 md:w-[60%] w-full px-4">
+    <Card className="mb-6 w-full">
       <CardHeader>
-        <CardTitle>Product Information</CardTitle>
+        <CardTitle className="text-xl">Product Information</CardTitle>
       </CardHeader>
       <CardContent>
         <p className="mb-1">
