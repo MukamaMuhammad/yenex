@@ -147,17 +147,21 @@ export async function POST(req: NextRequest) {
       model: openai("gpt-4o-mini"),
       schema: ProductInfoSchema,
       prompt: `
-        Analyze the following HTML content from a product page and extract the product name and power rating (in watts).
-        If the power rating is not explicitly stated, make an educated guess based on similar products.
+        Analyze the following HTML content from a product page and extract the product name and power rating information (watts, volts, amps).
+        If the power rating is not explicitly stated, make an educated guess based on similar products or return a string "unknown".
         HTML Content:
         ${plainText}
 
         Provide the result in the following format:
         {
-          "productName": "Name of the product",
-          "powerRating": Power rating in watts (as a number),
-          "url": "${url}"
-        }
+        "productName": "Name of the product",
+        "powerRating": {
+          "watts": number or "unknown",
+          "volts": number or "unknown",
+          "amps": number or "unknown"
+        },
+        "url": "${url}"
+      }
       `,
     });
     return result.toTextStreamResponse();

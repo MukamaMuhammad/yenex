@@ -8,7 +8,7 @@ interface ProductInfoProps {
 
 export default function ProductInfo({ info }: ProductInfoProps) {
   return (
-    <Card className="mb-6 w-full">
+    <Card className="mb-6 w-full ">
       <CardHeader>
         <CardTitle className="text-xl">Product Information</CardTitle>
       </CardHeader>
@@ -17,7 +17,16 @@ export default function ProductInfo({ info }: ProductInfoProps) {
           <strong>Name:</strong> {info.productName}
         </p>
         <p className="mb-1">
-          <strong>Power Rating:</strong> {info.powerRating} watts
+          <strong>Watts:</strong> {info.powerRating.watts}{" "}
+          {info.powerRating.watts !== "unknown" && "watts"}
+        </p>
+        <p className="mb-1">
+          <strong>Volts:</strong> {info.powerRating.volts}{" "}
+          {info.powerRating.volts !== "unknown" && "volts"}
+        </p>
+        <p className="mb-1">
+          <strong>Amps:</strong> {info.powerRating.amps}{" "}
+          {info.powerRating.amps !== "unknown" && "amps"}
         </p>
         <p className="mb-1">
           <strong>URL:</strong>{" "}
@@ -45,7 +54,7 @@ export function ProductInfoSkeleton({ isLoading }: ProductInfoSkeletonProps) {
   if (!isLoading) return null;
 
   return (
-    <Card className="mb-6 md:w-[60%] w-full px-4">
+    <Card className="mb-6 w-full ">
       <CardHeader>
         <CardTitle>
           <Skeleton className="h-6 w-48" />

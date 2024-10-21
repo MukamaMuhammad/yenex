@@ -32,7 +32,7 @@ export default function UrlForm({ onSubmit, isLoading }: UrlFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-6 w-full md:w-[60%] ">
+    <form onSubmit={handleSubmit} className="mb-6 w-full md:w-[60%]">
       {urls.map((url, index) => (
         <div key={index} className="flex gap-3 mb-3">
           <Input
@@ -50,7 +50,7 @@ export default function UrlForm({ onSubmit, isLoading }: UrlFormProps) {
               size="icon"
               onClick={() => removeUrlInput(index)}
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4 " />
             </Button>
           )}
         </div>

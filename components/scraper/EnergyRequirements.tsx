@@ -2,21 +2,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
 import { Skeleton } from "@components/ui/skeleton";
 
 interface EnergyRequirementsProps {
-  powerRating: number;
+  powerRating: {
+    watts: number | "unknown";
+    volts: number | "unknown";
+    amps: number | "unknown";
+  };
 }
 
 export default function EnergyRequirements({
   powerRating,
 }: EnergyRequirementsProps) {
-  // This is a placeholder. You'll need to implement the actual calculations
-  // or API call to get the energy requirements.
   return (
     <Card className=" w-full px-4">
       <CardHeader>
         <CardTitle className="text-xl">Required Solar System</CardTitle>
       </CardHeader>
       <CardContent>
-        <p>Calculating energy requirements for {powerRating} watts...</p>
+        <p>
+          Calculating energy requirements for {powerRating.watts}{" "}
+          {powerRating.watts !== "unknown" && "watts"}...
+        </p>
       </CardContent>
     </Card>
   );
@@ -32,7 +37,7 @@ export function EnergyRequirementsSkeleton({
   if (!isLoading) return null;
 
   return (
-    <Card className=" w-full px-4">
+    <Card className=" w-full ">
       <CardHeader>
         <CardTitle>
           <Skeleton className="h-6 w-1/2" />

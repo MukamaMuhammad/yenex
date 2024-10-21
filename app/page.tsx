@@ -34,6 +34,7 @@ export default function ScraperPage() {
       );
 
       const results = await Promise.all(promises);
+      console.log("results", results);
       setResults(results);
     } catch (err) {
       setError(
