@@ -17,16 +17,13 @@ export default function ProductInfo({ info }: ProductInfoProps) {
           <strong>Name:</strong> {info.productName}
         </p>
         <p className="mb-1">
-          <strong>Watts:</strong> {info.powerRating.watts}{" "}
-          {info.powerRating.watts !== "unknown" && "watts"}
+          <strong>Watts:</strong> {info.watts} {info.watts && "watts"}
         </p>
         <p className="mb-1">
-          <strong>Volts:</strong> {info.powerRating.volts}{" "}
-          {info.powerRating.volts !== "unknown" && "volts"}
+          <strong>Volts:</strong> {info.volts} {info.volts && "volts"}
         </p>
         <p className="mb-1">
-          <strong>Amps:</strong> {info.powerRating.amps}{" "}
-          {info.powerRating.amps !== "unknown" && "amps"}
+          <strong>Amps:</strong> {info.amps} {info.amps && "amps"}
         </p>
         <p className="mb-1">
           <strong>URL:</strong>{" "}
@@ -36,7 +33,7 @@ export default function ProductInfo({ info }: ProductInfoProps) {
             rel="noopener noreferrer"
             className="text-blue-500 hover:underline break-words"
           >
-            {info.url.length > 50
+            {info.url?.length > 50
               ? `${info.url.substring(0, 50)}...`
               : info.url}
           </a>

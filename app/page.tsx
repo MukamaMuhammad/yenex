@@ -67,9 +67,7 @@ export default function ScraperPage() {
         : results.map((result, index) => (
             <div key={index} className="w-full md:w-[60%] mb-6">
               <ProductInfo info={result} />
-              {result.powerRating && (
-                <EnergyRequirements powerRating={result.powerRating} />
-              )}
+              {result && <EnergyRequirements watts={result.watts} />}
             </div>
           ))}
     </div>

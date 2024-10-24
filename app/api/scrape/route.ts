@@ -7,6 +7,25 @@ import puppeteer from "puppeteer-core";
 import { JSDOM } from "jsdom";
 import type { ConstructorOptions } from "jsdom";
 
+// Types and Interfaces
+interface PowerRating {
+  watts: number | null;
+  volts: number | null;
+  amps: number | null;
+  rawText: PowerTextContext[];
+}
+
+interface PowerTextContext {
+  context: string;
+  original: string;
+}
+
+interface PowerElement {
+  text: string;
+  originalText: string;
+  element: Element;
+}
+
 export const maxDuration = 60;
 export async function POST(req: NextRequest) {
   const { url } = await req.json();
@@ -95,11 +114,11 @@ export async function POST(req: NextRequest) {
       "aside",
     ];
     elementsToRemove.forEach((tag) => {
-      document.querySelectorAll(tag).forEach((el: Element) => el.remove());
+      document.querySelectorAll(tag).forEach((el) => el.remove());
     });
 
     // Remove comments
-    const removeComments = (node: any) => {
+    const removeComments = (node: Node) => {
       for (let i = node.childNodes.length - 1; i >= 0; i--) {
         const child = node.childNodes[i];
         if (child.nodeType === 8) {
@@ -112,7 +131,7 @@ export async function POST(req: NextRequest) {
     removeComments(document.body);
 
     // Remove all attributes except 'class'
-    document.querySelectorAll("*").forEach((el: Element) => {
+    document.querySelectorAll("*").forEach((el) => {
       Array.from(el.attributes).forEach((attr) => {
         if (attr.name !== "class") {
           el.removeAttribute(attr.name);
@@ -121,44 +140,146 @@ export async function POST(req: NextRequest) {
     });
 
     // Remove empty elements
-    const removeEmptyElements = (node: any) => {
+    const removeEmptyElements = (node: Node) => {
       for (let i = node.childNodes.length - 1; i >= 0; i--) {
         const child = node.childNodes[i];
         if (child.nodeType === 1) {
           removeEmptyElements(child);
           if (
-            child.innerHTML.trim() === "" &&
-            !["br", "hr"].includes(child.tagName.toLowerCase())
+            (child as Element).innerHTML.trim() === "" &&
+            !["br", "hr"].includes((child as Element).tagName.toLowerCase())
           ) {
-            child.parentNode.removeChild(child);
+            node.removeChild(child);
           }
         }
       }
     };
     removeEmptyElements(document.body);
 
-    // Convert to plain text, keeping only relevant content
-    const plainText = document.body.textContent || "";
-    // const cleanedContent = plainText.replace(/\s+/g, " ").trim().slice(0, 4000); // Limit to 4000 characters
+    // Find elements containing power-related terms
+    const powerTerms: string[] = [
+      "watts",
+      "w",
+      "kwh",
+      "kwhr",
+      "kwhrs",
+      "watt",
+      "volt",
+      "volts",
+      "v",
+      "amp",
+      "amps",
+      "a",
+      "mA",
+    ];
+    const powerElements: PowerElement[] = [];
 
-    console.log("Cleaned content length:", plainText.length);
+    // Function to get nth parent element
+    const getNthParent = (
+      element: Element | null,
+      n: number
+    ): Element | null => {
+      let parent: Element | null = element;
+      for (let i = 0; i < n && parent; i++) {
+        parent = parent.parentElement;
+      }
+      return parent;
+    };
+
+    // Function to extract text from an element and its children
+    const extractText = (element: Element | null): string => {
+      return element
+        ? element.textContent?.trim().replace(/\s+/g, " ") || ""
+        : "";
+    };
+
+    // Function to check if there's a number near the power term
+    const hasNumberNearTerm = (text: string, term: string): boolean => {
+      // Look for numbers within 10 characters before or after the term
+      const windowSize = 30;
+      const termIndex = text.toLowerCase().indexOf(term);
+      if (termIndex === -1) return false;
+
+      const start = Math.max(0, termIndex - windowSize);
+      const end = Math.min(text.length, termIndex + term.length + windowSize);
+      const textWindow = text.slice(start, end);
+
+      // Regular expression to match numbers (including decimals)
+      const numberPattern = /\d+(?:\.\d+)?/;
+      return numberPattern.test(textWindow);
+    };
+
+    // Function to validate power-related content
+    const isValidPowerContent = (text: string): boolean => {
+      const lowercaseText = text.toLowerCase();
+      return powerTerms.some((term) => {
+        const hasTerm = lowercaseText.includes(term);
+        return hasTerm && hasNumberNearTerm(lowercaseText, term);
+      });
+    };
+
+    // Search through all text nodes
+    const walker = document.createTreeWalker(
+      document.body,
+      dom.window.NodeFilter.SHOW_TEXT
+    );
+
+    let node: Node | null = walker.currentNode;
+    while ((node = walker.nextNode())) {
+      const text = node.textContent || "";
+
+      // Check if the text contains any power-related terms with nearby numbers
+      if (isValidPowerContent(text)) {
+        const parentElement = node.parentElement;
+        if (parentElement) {
+          const fifthParent = getNthParent(parentElement, 5);
+          if (fifthParent) {
+            const contextText = extractText(fifthParent);
+            // Double-check the full context still contains valid power information
+            if (isValidPowerContent(contextText)) {
+              powerElements.push({
+                text: contextText,
+                originalText: text.trim(),
+                element: fifthParent,
+              });
+            }
+          }
+        }
+      }
+    }
+
+    // If no power ratings found, return null
+    if (powerElements.length === 0) {
+      return null;
+    }
+
+    // Remove duplicates based on text content
+    const uniquePowerElements = powerElements.filter(
+      (element, index, self) =>
+        index === self.findIndex((e) => e.text === element.text)
+    );
+    console.log("uniquePowerElements", uniquePowerElements);
+    const uniquePowerElementsText = uniquePowerElements
+      .map((e) => e.text)
+      .join("\n");
+    console.log("Cleaned content length:", uniquePowerElementsText.length);
 
     const result = await streamObject({
       model: openai("gpt-4o-mini"),
       schema: ProductInfoSchema,
       prompt: `
-        Analyze the following HTML content from a product page and extract the product name and power rating information (watts, volts, amps).
-        If the power rating is not explicitly stated, make an educated guess based on similar products or return a string "unknown".
-        HTML Content:
-        ${plainText}
+        Analyze the following HTML text content from a product page and extract the product name and power rating information (watts, volts, amps). Please read all power ratings in the provided text (e.g. kwh, kwhr, kwhrs,v, kv, a, amps, kamps etc.) before converting them to watts, volts, and amps accordingly.
+        If the power ratings are not explicitly stated, make an educated guess based on similar products
+        HTML text Content:
+        ${uniquePowerElementsText}
 
         Provide the result in the following format:
         {
         "productName": "Name of the product",
         "powerRating": {
-          "watts": number or "unknown",
-          "volts": number or "unknown",
-          "amps": number or "unknown"
+          "watts": Power rating in watts,
+          "volts": Power rating in volts,
+          "amps": Power rating in amps
         },
         "url": "${url}"
       }
