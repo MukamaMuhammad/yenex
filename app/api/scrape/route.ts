@@ -248,9 +248,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // If no power ratings found, return null
+    // If no power ratings found, return an empty response instead of null
     if (powerElements.length === 0) {
-      return null;
+      return new Response(JSON.stringify({ error: "No power ratings found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     // Remove duplicates based on text content
