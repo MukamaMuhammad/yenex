@@ -30,7 +30,7 @@ export default function ScraperPage() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-API-Key": process.env.NEXT_PUBLIC_SCRAPER_API_URL || "", // Make sure to set this in your .env.local
+            "X-API-Key": process.env.NEXT_PUBLIC_SCRAPER_API_KEY || "", // Make sure to set this in your .env.local
           },
           body: JSON.stringify({ url }),
         }).then((res) => res.json())
