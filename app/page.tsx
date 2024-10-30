@@ -11,7 +11,6 @@ import UrlForm from "@/components/scraper/UrlForm";
 import EnergyRequirements, {
   EnergyRequirementsSkeleton,
 } from "@/components/scraper/EnergyRequirements";
-import { scrapeUrls } from "./actions";
 
 export default function ScraperPage() {
   const [urls, setUrls] = useState<string[]>([]);
@@ -26,7 +25,18 @@ export default function ScraperPage() {
     setResults([]);
 
     try {
-      const results = await scrapeUrls(submittedUrls);
+      const promises = submittedUrls.map((url) =>
+        fetch(`${process.env.NEXT_PUBLIC_SCRAPER_API_URL}/api/scrape`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-API-Key": process.env.NEXT_PUBLIC_SCRAPER_API_URL || "", // Make sure to set this in your .env.local
+          },
+          body: JSON.stringify({ url }),
+        }).then((res) => res.json())
+      );
+
+      const results = await Promise.all(promises);
       console.log("results", results);
       setResults(results);
     } catch (err) {
