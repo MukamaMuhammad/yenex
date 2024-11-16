@@ -39,31 +39,53 @@ export function UrlSearch() {
   const [url, setUrl] = useState("");
   const [searching, setSearching] = useState(false);
   const [productInfo, setProductInfo] = useState<ProductInfo | null>(null);
-
+  const [error, setError] = useState<string | null>(null);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSearching(true);
+    setError(null); // Clear previous errors
+
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SCRAPER_API_URL}/api/product-scraper`,
+        `http://157.245.34.76:4500/api/product-scraper`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "X-API-Key": process.env.NEXT_PUBLIC_SCRAPER_API_KEY || "", // If you're using API key auth
+            "X-API-Key": process.env.NEXT_PUBLIC_SCRAPER_API_KEY || "",
           },
+          mode: "cors",
           body: JSON.stringify({ url }),
         }
       );
 
+      // Log response details for debugging
+      console.log("Response status:", response.status);
+      console.log("Response headers:", Object.fromEntries(response.headers));
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error("Error response:", errorText);
+        throw new Error(
+          `HTTP error! status: ${response.status}, message: ${errorText}`
+        );
       }
 
       const result = await response.json();
+      console.log("Success response:", result);
       setProductInfo(result);
     } catch (error) {
       console.error("Error fetching product info:", error);
+
+      if (error instanceof TypeError && error.message === "Failed to fetch") {
+        setError(
+          "Connection error. The request may have timed out or the server may be unavailable."
+        );
+      } else {
+        setError(
+          error instanceof Error ? error.message : "An unknown error occurred"
+        );
+      }
     } finally {
       setSearching(false);
     }
@@ -104,7 +126,7 @@ export function UrlSearch() {
           </Button>
         </form>
       </div>
-
+      {error && <p className="text-red-500">{error}</p>}
       {productInfo && <ProductDisplay productInfo={productInfo} />}
     </div>
   );

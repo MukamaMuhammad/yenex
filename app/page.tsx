@@ -26,12 +26,13 @@ export default function ScraperPage() {
 
     try {
       const promises = submittedUrls.map((url) =>
-        fetch(`${process.env.NEXT_PUBLIC_SCRAPER_API_URL}/api/scrape`, {
+        fetch(`http://157.245.34.76:4500/api/scrape`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-API-Key": process.env.NEXT_PUBLIC_SCRAPER_API_KEY || "", // Make sure to set this in your .env.local
           },
+
           body: JSON.stringify({ url }),
         }).then((res) => res.json())
       );
