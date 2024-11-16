@@ -26,7 +26,7 @@ export default function ScraperPage() {
 
     try {
       const promises = submittedUrls.map((url) =>
-        fetch(`http://157.245.34.76:4500/api/scrape`, {
+        fetch(`/api/scrape`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
