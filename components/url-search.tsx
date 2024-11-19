@@ -46,15 +46,18 @@ export function UrlSearch() {
     setError(null); // Clear previous errors
 
     try {
-      const response = await fetch(`/api/product-scraper`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-API-Key": process.env.NEXT_PUBLIC_SCRAPER_API_KEY || "",
-        },
-        mode: "cors",
-        body: JSON.stringify({ url }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SCRAPER_API_URL}/api/product-scraper`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-API-Key": process.env.NEXT_PUBLIC_SCRAPER_API_KEY || "",
+          },
+          mode: "cors",
+          body: JSON.stringify({ url }),
+        }
+      );
 
       // Log response details for debugging
       console.log("Response status:", response.status);
